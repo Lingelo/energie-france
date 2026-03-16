@@ -150,7 +150,19 @@ function NuclearMarkers({ plants }: { plants: PowerPlant[] }) {
   );
 }
 
-// Heatmap layer based on production capacity
+// CO₂ emission factors by filiere (gCO₂/kWh lifecycle)
+const CO2_FACTORS: Record<string, number> = {
+  Charbon: 1000,
+  Gaz: 400,
+  Bioenergies: 230,
+  Solaire: 30,
+  Eolien: 10,
+  Nucleaire: 6,
+  Hydraulique: 4,
+  Stockage: 0,
+};
+
+// Heatmap layer based on CO₂ emissions (capacity × emission factor)
 function HeatmapLayer({ plants }: { plants: PowerPlant[] }) {
   const map = useMap();
   const heatRef = useRef<L.Layer | null>(null);
@@ -161,8 +173,11 @@ function HeatmapLayer({ plants }: { plants: PowerPlant[] }) {
     }
 
     const points: [number, number, number][] = plants
-      .filter(p => p.capacity != null && p.capacity > 0)
-      .map(p => [p.lat, p.lng, Math.log10((p.capacity ?? 1) + 1) * 0.3]);
+      .filter(p => p.capacity != null && p.capacity > 0 && (CO2_FACTORS[p.filiere] ?? 0) > 0)
+      .map(p => {
+        const co2 = (p.capacity ?? 0) * (CO2_FACTORS[p.filiere] ?? 0);
+        return [p.lat, p.lng, Math.log10(co2 + 1) * 0.15];
+      });
 
     // @ts-expect-error leaflet.heat extends L
     const heat = L.heatLayer(points, {
@@ -301,15 +316,13 @@ export function MapView({ plants, activeFilters, showHeatmap, selectedRegion, on
           subdomains="abcd"
         />
         <FlyToRegion region={selectedRegion} />
-        {showHeatmap && <HeatmapLayer plants={filtered} />}
-        {!showHeatmap && (
-          <>
+        {showHeatmap && <HeatmapLayer plants={plants} />}
+        <>
             <NuclearMarkers plants={nuclear} />
-            {[...clustered.entries()].map(([filiere, plants]) => (
-              <ClusterLayer key={filiere} plants={plants} filiere={filiere} />
+            {[...clustered.entries()].map(([filiere, fPlants]) => (
+              <ClusterLayer key={filiere} plants={fPlants} filiere={filiere} />
             ))}
           </>
-        )}
       </MapContainer>
       <MapLegend
         activeFilters={activeFilters}
