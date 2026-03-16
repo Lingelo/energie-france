@@ -6,13 +6,15 @@ import 'leaflet.markercluster';
 // @ts-ignore no types for leaflet.heat
 import 'leaflet.heat';
 import type { PowerPlant, PlantFiliere } from '../types';
-import { PLANT_COLORS } from '../utils/colors';
+import { PLANT_COLORS, PLANT_FILIERES } from '../utils/colors';
 
 interface Props {
   plants: PowerPlant[];
   activeFilters: Set<PlantFiliere>;
   showHeatmap: boolean;
 }
+
+const MIN_CAPACITY_MW = 1;
 
 // Marker radius based on capacity (log scale), clamped
 function markerRadius(capacity: number | null, filiere: PlantFiliere): number {
@@ -32,17 +34,18 @@ function ClusterLayer({ plants, filiere }: { plants: PowerPlant[]; filiere: Plan
     const color = PLANT_COLORS[filiere];
 
     const cluster = L.markerClusterGroup({
-      maxClusterRadius: 40,
+      maxClusterRadius: 35,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
+      disableClusteringAtZoom: 12,
       iconCreateFunction(c) {
         const count = c.getChildCount();
         const size = count > 100 ? 40 : count > 10 ? 32 : 24;
         return L.divIcon({
           html: `<div style="
-            background: ${color}33;
+            background: #ffffff;
             border: 2px solid ${color};
-            color: #fff;
+            color: #1e293b;
             border-radius: 50%;
             width: ${size}px;
             height: ${size}px;
@@ -51,7 +54,7 @@ function ClusterLayer({ plants, filiere }: { plants: PowerPlant[]; filiere: Plan
             justify-content: center;
             font-size: ${size > 32 ? 12 : 10}px;
             font-weight: 600;
-            box-shadow: 0 0 8px ${color}66;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.12);
           ">${count}</div>`,
           className: '',
           iconSize: L.point(size, size),
@@ -64,13 +67,12 @@ function ClusterLayer({ plants, filiere }: { plants: PowerPlant[]; filiere: Plan
       const marker = L.circleMarker([p.lat, p.lng], {
         radius: r,
         fillColor: color,
-        fillOpacity: 0.7,
+        fillOpacity: 0.6,
         color: color,
         weight: 1,
-        opacity: 0.9,
+        opacity: 0.8,
       });
       marker.bindPopup(buildPopupContent(p), {
-        className: 'dark-popup',
         maxWidth: 260,
       });
       cluster.addLayer(marker);
@@ -91,7 +93,7 @@ function ClusterLayer({ plants, filiere }: { plants: PowerPlant[]; filiere: Plan
 function buildPopupContent(p: PowerPlant): string {
   const color = PLANT_COLORS[p.filiere];
   return `
-    <div style="font-family: Inter, system-ui, sans-serif; color: #f1f5f9; font-size: 13px; line-height: 1.5;">
+    <div style="font-family: Inter, system-ui, sans-serif; color: #1e293b; font-size: 13px; line-height: 1.5;">
       <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">
         ${p.name ?? 'Centrale sans nom'}
       </div>
@@ -100,7 +102,7 @@ function buildPopupContent(p: PowerPlant): string {
         <span>${p.filiere}</span>
       </div>
       ${p.capacity != null ? `<div>Capacite : <strong>${p.capacity >= 1000 ? (p.capacity / 1000).toFixed(1) + ' GW' : Math.round(p.capacity) + ' MW'}</strong></div>` : ''}
-      ${p.operator ? `<div style="color: #94a3b8; font-size: 12px; margin-top: 2px;">${p.operator}</div>` : ''}
+      ${p.operator ? `<div style="color: #64748b; font-size: 12px; margin-top: 2px;">${p.operator}</div>` : ''}
     </div>
   `;
 }
@@ -116,12 +118,12 @@ function NuclearMarkers({ plants }: { plants: PowerPlant[] }) {
           center={[p.lat, p.lng]}
           radius={markerRadius(p.capacity, p.filiere)}
           fillColor={color}
-          fillOpacity={0.8}
-          color="#fff"
+          fillOpacity={0.75}
+          color="#ffffff"
           weight={2}
           opacity={0.9}
         >
-          <Popup className="dark-popup" maxWidth={260}>
+          <Popup maxWidth={260}>
             <div dangerouslySetInnerHTML={{ __html: buildPopupContent(p) }} />
           </Popup>
         </CircleMarker>
@@ -151,12 +153,12 @@ function HeatmapLayer({ plants }: { plants: PowerPlant[] }) {
       maxZoom: 10,
       max: 1.5,
       gradient: {
-        0.0: '#0f172a',
-        0.2: '#1e3a5f',
-        0.4: '#0ea5e9',
-        0.6: '#22c55e',
-        0.8: '#eab308',
-        1.0: '#ef4444',
+        0.0: '#f8fafc',
+        0.2: '#bfdbfe',
+        0.4: '#0284c7',
+        0.6: '#16a34a',
+        0.8: '#ca8a04',
+        1.0: '#dc2626',
       },
     });
 
@@ -171,9 +173,32 @@ function HeatmapLayer({ plants }: { plants: PowerPlant[] }) {
   return null;
 }
 
+// Legend overlay for the map
+function MapLegend() {
+  return (
+    <div className="absolute bottom-4 left-4 z-[1000] glass rounded-xl px-3 py-2.5">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+        {PLANT_FILIERES.map((f) => (
+          <div key={f} className="flex items-center gap-1.5">
+            <span
+              className="w-2.5 h-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: PLANT_COLORS[f] }}
+            />
+            <span className="text-[#475569]">{f}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function MapView({ plants, activeFilters, showHeatmap }: Props) {
   const filtered = useMemo(() => {
-    return plants.filter((p) => activeFilters.has(p.filiere));
+    return plants.filter((p) => {
+      if (!activeFilters.has(p.filiere)) return false;
+      if (p.filiere !== 'Nucleaire' && p.capacity != null && p.capacity < MIN_CAPACITY_MW) return false;
+      return true;
+    });
   }, [plants, activeFilters]);
 
   const nuclear = useMemo(() => filtered.filter((p) => p.filiere === 'Nucleaire'), [filtered]);
@@ -189,26 +214,29 @@ export function MapView({ plants, activeFilters, showHeatmap }: Props) {
   }, [filtered]);
 
   return (
-    <MapContainer
-      center={[46.8, 2.5]}
-      zoom={6}
-      className="h-full w-full"
-      zoomControl={false}
-      attributionControl={false}
-    >
-      <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        subdomains="abcd"
-      />
-      {showHeatmap && <HeatmapLayer plants={filtered} />}
-      {!showHeatmap && (
-        <>
-          <NuclearMarkers plants={nuclear} />
-          {[...clustered.entries()].map(([filiere, plants]) => (
-            <ClusterLayer key={filiere} plants={plants} filiere={filiere} />
-          ))}
-        </>
-      )}
-    </MapContainer>
+    <div className="h-full w-full relative">
+      <MapContainer
+        center={[46.8, 2.5]}
+        zoom={6}
+        className="h-full w-full"
+        zoomControl={false}
+        attributionControl={false}
+      >
+        <TileLayer
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          subdomains="abcd"
+        />
+        {showHeatmap && <HeatmapLayer plants={filtered} />}
+        {!showHeatmap && (
+          <>
+            <NuclearMarkers plants={nuclear} />
+            {[...clustered.entries()].map(([filiere, plants]) => (
+              <ClusterLayer key={filiere} plants={plants} filiere={filiere} />
+            ))}
+          </>
+        )}
+      </MapContainer>
+      <MapLegend />
+    </div>
   );
 }

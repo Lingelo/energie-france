@@ -62,38 +62,38 @@ export function YearlyTrends({ data }: Props) {
   if (monthly.length === 0) return null;
 
   return (
-    <div className="bg-[#1e293b] border border-[#334155] rounded-xl p-5">
-      <h3 className="text-lg font-semibold mb-1">Tendances annuelles</h3>
-      <p className="text-sm text-[#94a3b8] mb-4">
+    <div>
+      <h3 className="text-base font-semibold mb-1.5 text-[#1e293b]">Tendances annuelles</h3>
+      <p className="text-sm text-[#64748b] mb-5">
         Production moyenne par mois et intensite CO2
       </p>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1 mb-4 text-xs">
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-5 text-xs">
         {FILIERE_KEYS.map((key) => (
           <div key={key} className="flex items-center gap-1">
             <span
               className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: FILIERE_COLORS[key] }}
             />
-            <span className="text-[#94a3b8]">{FILIERE_LABELS[key]}</span>
+            <span className="text-[#64748b]">{FILIERE_LABELS[key]}</span>
           </div>
         ))}
       </div>
 
-      <div className="h-[350px]">
+      <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={monthly}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
               dataKey="month"
               stroke="#94a3b8"
-              tick={{ fill: '#94a3b8', fontSize: 11 }}
+              tick={{ fill: '#64748b', fontSize: 12 }}
             />
             <YAxis
               yAxisId="left"
               stroke="#94a3b8"
-              tick={{ fill: '#94a3b8', fontSize: 11 }}
+              tick={{ fill: '#64748b', fontSize: 12 }}
               tickFormatter={(v: number) =>
                 v >= 1000 ? `${(v / 1000).toFixed(0)}GW` : `${v}`
               }
@@ -102,13 +102,13 @@ export function YearlyTrends({ data }: Props) {
               yAxisId="right"
               orientation="right"
               stroke="#94a3b8"
-              tick={{ fill: '#94a3b8', fontSize: 11 }}
+              tick={{ fill: '#64748b', fontSize: 12 }}
               tickFormatter={(v: number) => `${v}`}
               label={{
                 value: 'gCO2/kWh',
                 angle: 90,
                 position: 'insideRight',
-                fill: '#94a3b8',
+                fill: '#64748b',
                 fontSize: 10,
               }}
             />
@@ -123,10 +123,11 @@ export function YearlyTrends({ data }: Props) {
                 return [`${Math.round(v).toLocaleString('fr-FR')} MW`, label];
               }}
               contentStyle={{
-                background: '#1e293b',
-                border: '1px solid #334155',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
                 borderRadius: 8,
-                color: '#f1f5f9',
+                color: '#1e293b',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               }}
             />
             {[...FILIERE_KEYS].reverse().map((key) => (
@@ -142,9 +143,9 @@ export function YearlyTrends({ data }: Props) {
               yAxisId="right"
               type="monotone"
               dataKey="taux_co2"
-              stroke="#ef4444"
+              stroke="#dc2626"
               strokeWidth={2}
-              dot={{ r: 3, fill: '#ef4444' }}
+              dot={{ r: 3, fill: '#dc2626' }}
             />
           </ComposedChart>
         </ResponsiveContainer>

@@ -69,23 +69,23 @@ export function Co2Heatmap({ data }: Props) {
   if (days.length === 0) return null;
 
   function cellColor(co2: number): string {
-    if (co2 < 0) return '#1e293b';
-    if (co2 < 30) return '#166534';
-    if (co2 < 50) return '#22c55e';
-    if (co2 < 70) return '#84cc16';
-    if (co2 < 100) return '#eab308';
-    if (co2 < 150) return '#f97316';
-    return '#ef4444';
+    if (co2 < 0) return '#f1f5f9';
+    if (co2 < 30) return '#bbf7d0';
+    if (co2 < 50) return '#86efac';
+    if (co2 < 70) return '#bef264';
+    if (co2 < 100) return '#fde047';
+    if (co2 < 150) return '#fdba74';
+    return '#fca5a5';
   }
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   return (
-    <div className="bg-[#1e293b] border border-[#334155] rounded-xl p-5">
-      <h3 className="text-lg font-semibold mb-1">
+    <div>
+      <h3 className="text-base font-semibold mb-1.5 text-[#1e293b]">
         Quand l'electricite est-elle la plus propre ?
       </h3>
-      <p className="text-sm text-[#94a3b8] mb-4">
+      <p className="text-sm text-[#64748b] mb-5">
         Intensite carbone par heure, sur les {days.length} derniers jours
       </p>
 
@@ -107,14 +107,14 @@ export function Co2Heatmap({ data }: Props) {
           {days.map((day) => {
             const dayCells = grid.filter((c) => c.day === day);
             return (
-              <div key={day} className="flex items-center gap-0.5 mb-0.5">
+              <div key={day} className="flex items-center gap-0.5 mb-[3px]">
                 <span className="w-12 text-right text-[10px] text-[#94a3b8] pr-2 shrink-0">
                   {day}
                 </span>
                 {dayCells.map((cell) => (
                   <div
                     key={`${cell.day}-${cell.hour}`}
-                    className="flex-1 h-4 rounded-[2px] transition-colors"
+                    className="flex-1 h-5 rounded-[2px] transition-colors"
                     style={{ backgroundColor: cellColor(cell.co2) }}
                     title={
                       cell.co2 >= 0
@@ -131,12 +131,12 @@ export function Co2Heatmap({ data }: Props) {
           <div className="flex items-center gap-2 mt-3 ml-14 text-[10px] text-[#94a3b8]">
             <span>Propre</span>
             {[
-              '#166534',
-              '#22c55e',
-              '#84cc16',
-              '#eab308',
-              '#f97316',
-              '#ef4444',
+              '#bbf7d0',
+              '#86efac',
+              '#bef264',
+              '#fde047',
+              '#fdba74',
+              '#fca5a5',
             ].map((c) => (
               <div
                 key={c}

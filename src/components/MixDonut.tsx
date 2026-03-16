@@ -36,20 +36,20 @@ export function MixDonut({ latest }: Props) {
   if (total === 0) return null;
 
   return (
-    <div className="bg-[#1e293b] border border-[#334155] rounded-xl p-5">
-      <h3 className="text-lg font-semibold mb-4">Mix electrique actuel</h3>
-      <div className="flex flex-col lg:flex-row items-center gap-6">
-        <div className="w-full max-w-[280px] h-[280px]">
+    <div>
+      <h3 className="text-base font-semibold mb-5 text-[#1e293b]">Mix electrique actuel</h3>
+      <div className="flex flex-col items-center gap-5">
+        <div className="w-full max-w-[240px] h-[240px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={data}
                 cx="50%"
                 cy="50%"
-                innerRadius={70}
-                outerRadius={120}
+                innerRadius={60}
+                outerRadius={105}
                 dataKey="value"
-                stroke="#1e293b"
+                stroke="#ffffff"
                 strokeWidth={2}
               >
                 {data.map((entry) => (
@@ -62,24 +62,26 @@ export function MixDonut({ latest }: Props) {
                   return [`${Math.round(v).toLocaleString('fr-FR')} MW (${formatPercent((v / total) * 100)})`];
                 }}
                 contentStyle={{
-                  background: '#1e293b',
-                  border: '1px solid #334155',
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
                   borderRadius: 8,
-                  color: '#f1f5f9',
+                  color: '#1e293b',
+                  fontSize: 13,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                 }}
               />
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-2.5 text-sm w-full">
           {data.map((entry) => (
             <div key={entry.key} className="flex items-center gap-2">
               <span
                 className="w-3 h-3 rounded-full shrink-0"
                 style={{ backgroundColor: entry.color }}
               />
-              <span className="text-[#94a3b8]">{entry.name}</span>
-              <span className="font-medium text-[#f1f5f9]">
+              <span className="text-[#64748b]">{entry.name}</span>
+              <span className="font-semibold text-[#1e293b] ml-auto">
                 {formatPercent((entry.value / total) * 100)}
               </span>
             </div>

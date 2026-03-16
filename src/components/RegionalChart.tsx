@@ -64,13 +64,13 @@ export function RegionalChart({ data }: Props) {
   if (regions.length === 0) return null;
 
   return (
-    <div className="bg-[#1e293b] border border-[#334155] rounded-xl p-5">
-      <h3 className="text-lg font-semibold mb-1">Production par region</h3>
-      <p className="text-sm text-[#94a3b8] mb-4">
+    <div>
+      <h3 className="text-base font-semibold mb-1.5 text-[#1e293b]">Production par region</h3>
+      <p className="text-sm text-[#64748b] mb-5">
         Dernier releve disponible par region
       </p>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1 mb-4 text-xs">
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-5 text-xs">
         {[
           { key: 'nucleaire', label: 'Nucleaire', color: FILIERE_COLORS.nucleaire },
           { key: 'hydraulique', label: 'Hydraulique', color: FILIERE_COLORS.hydraulique },
@@ -84,7 +84,7 @@ export function RegionalChart({ data }: Props) {
               className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: color }}
             />
-            <span className="text-[#94a3b8]">{label}</span>
+            <span className="text-[#64748b]">{label}</span>
           </div>
         ))}
       </div>
@@ -92,11 +92,11 @@ export function RegionalChart({ data }: Props) {
       <div style={{ height: Math.max(400, regions.length * 35) }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={regions} layout="vertical" margin={{ left: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
             <XAxis
               type="number"
               stroke="#94a3b8"
-              tick={{ fill: '#94a3b8', fontSize: 11 }}
+              tick={{ fill: '#64748b', fontSize: 12 }}
               tickFormatter={(v: number) =>
                 v >= 1000 ? `${(v / 1000).toFixed(0)}GW` : `${v}MW`
               }
@@ -106,7 +106,7 @@ export function RegionalChart({ data }: Props) {
               dataKey="region"
               width={120}
               stroke="#94a3b8"
-              tick={{ fill: '#94a3b8', fontSize: 11 }}
+              tick={{ fill: '#64748b', fontSize: 12 }}
             />
             <Tooltip
               formatter={(value, name) => {
@@ -126,10 +126,11 @@ export function RegionalChart({ data }: Props) {
                 ];
               }}
               contentStyle={{
-                background: '#1e293b',
-                border: '1px solid #334155',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
                 borderRadius: 8,
-                color: '#f1f5f9',
+                color: '#1e293b',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               }}
             />
             <Bar dataKey="nucleaire" stackId="1" fill={FILIERE_COLORS.nucleaire} />

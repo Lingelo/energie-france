@@ -53,18 +53,18 @@ export function MixEvolution({ data }: Props) {
   if (chartData.length === 0) return null;
 
   return (
-    <div className="bg-[#1e293b] border border-[#334155] rounded-xl p-5">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Evolution du mix electrique</h3>
-        <div className="flex gap-1 bg-[#0f172a] rounded-lg p-1">
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-base font-semibold text-[#1e293b]">Evolution du mix</h3>
+        <div className="flex gap-1 bg-[#f1f5f9] rounded-lg p-1">
           {(['24h', '7j'] as Range[]).map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
               className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 range === r
-                  ? 'bg-[#8b5cf6] text-white'
-                  : 'text-[#94a3b8] hover:text-white'
+                  ? 'bg-[#0072CE] text-white'
+                  : 'text-[#64748b] hover:text-[#1e293b]'
               }`}
             >
               {r === '24h' ? '24h' : '7 jours'}
@@ -74,26 +74,26 @@ export function MixEvolution({ data }: Props) {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1 mb-4 text-xs">
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-5 text-xs">
         {FILIERE_KEYS.map((key) => (
           <div key={key} className="flex items-center gap-1">
             <span
               className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: FILIERE_COLORS[key] }}
             />
-            <span className="text-[#94a3b8]">{FILIERE_LABELS[key]}</span>
+            <span className="text-[#64748b]">{FILIERE_LABELS[key]}</span>
           </div>
         ))}
         <div className="flex items-center gap-1">
-          <span className="w-4 border-t-2 border-dashed border-white" />
-          <span className="text-[#94a3b8]">Consommation</span>
+          <span className="w-4 border-t-2 border-dashed border-[#1e293b]" />
+          <span className="text-[#64748b]">Consommation</span>
         </div>
       </div>
 
-      <div className="h-[400px]">
+      <div className="h-[440px]">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
               dataKey="time"
               tickFormatter={(v: string) => {
@@ -103,13 +103,13 @@ export function MixEvolution({ data }: Props) {
                   : d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
               }}
               stroke="#94a3b8"
-              tick={{ fill: '#94a3b8', fontSize: 11 }}
+              tick={{ fill: '#64748b', fontSize: 12 }}
               interval="preserveStartEnd"
               minTickGap={40}
             />
             <YAxis
               stroke="#94a3b8"
-              tick={{ fill: '#94a3b8', fontSize: 11 }}
+              tick={{ fill: '#64748b', fontSize: 12 }}
               tickFormatter={(v: number) =>
                 v >= 1000 ? `${(v / 1000).toFixed(0)}GW` : `${v}MW`
               }
@@ -126,10 +126,11 @@ export function MixEvolution({ data }: Props) {
                 return [`${Math.round(v).toLocaleString('fr-FR')} MW`, label];
               }}
               contentStyle={{
-                background: '#1e293b',
-                border: '1px solid #334155',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
                 borderRadius: 8,
-                color: '#f1f5f9',
+                color: '#1e293b',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               }}
             />
             {[...FILIERE_KEYS].reverse().map((key) => (
@@ -146,7 +147,7 @@ export function MixEvolution({ data }: Props) {
             <Line
               type="monotone"
               dataKey="consommation"
-              stroke="#ffffff"
+              stroke="#1e293b"
               strokeWidth={2}
               strokeDasharray="6 3"
               dot={false}
@@ -156,14 +157,14 @@ export function MixEvolution({ data }: Props) {
       </div>
 
       {/* CO2 strip */}
-      <div className="mt-4">
-        <p className="text-xs text-[#94a3b8] mb-1">Intensite CO2 sur la periode</p>
+      <div className="mt-5">
+        <p className="text-xs text-[#64748b] mb-2">Intensite CO2 sur la periode</p>
         <div className="flex h-3 rounded-full overflow-hidden">
           {chartData.map((d, i) => {
             const co2 = (d.taux_co2 as number) ?? 0;
-            let color = '#22c55e';
-            if (co2 >= 100) color = '#ef4444';
-            else if (co2 >= 50) color = '#eab308';
+            let color = '#16a34a';
+            if (co2 >= 100) color = '#dc2626';
+            else if (co2 >= 50) color = '#ca8a04';
             return (
               <div
                 key={i}

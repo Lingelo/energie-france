@@ -1,15 +1,15 @@
 import type { FilièreKey, PlantFiliere } from '../types';
 
 export const FILIERE_COLORS: Record<FilièreKey, string> = {
-  nucleaire: '#3b82f6',
-  eolien: '#06b6d4',
-  solaire: '#eab308',
-  hydraulique: '#0ea5e9',
-  gaz: '#f97316',
-  charbon: '#ef4444',
-  fioul: '#dc2626',
-  bioenergies: '#22c55e',
-  pompage: '#a855f7',
+  nucleaire: '#1d4ed8',
+  eolien: '#0891b2',
+  solaire: '#ca8a04',
+  hydraulique: '#0284c7',
+  gaz: '#ea580c',
+  charbon: '#6b7280',
+  fioul: '#9ca3af',
+  bioenergies: '#16a34a',
+  pompage: '#7c3aed',
 };
 
 export const FILIERE_LABELS: Record<FilièreKey, string> = {
@@ -37,14 +37,14 @@ export const FILIERE_KEYS: FilièreKey[] = [
 ];
 
 export const PLANT_COLORS: Record<PlantFiliere, string> = {
-  Nucleaire: '#3b82f6',
-  Eolien: '#06b6d4',
-  Solaire: '#eab308',
-  Hydraulique: '#0ea5e9',
-  Gaz: '#f97316',
-  Charbon: '#ef4444',
-  Bioenergies: '#22c55e',
-  Stockage: '#a855f7',
+  Nucleaire: '#1d4ed8',
+  Eolien: '#0891b2',
+  Solaire: '#ca8a04',
+  Hydraulique: '#0284c7',
+  Gaz: '#ea580c',
+  Charbon: '#6b7280',
+  Bioenergies: '#16a34a',
+  Stockage: '#7c3aed',
 };
 
 export const PLANT_FILIERES: PlantFiliere[] = [
@@ -59,9 +59,9 @@ export const PLANT_FILIERES: PlantFiliere[] = [
 ];
 
 export function co2Color(taux: number): string {
-  if (taux < 50) return '#22c55e';
-  if (taux < 100) return '#eab308';
-  return '#ef4444';
+  if (taux < 50) return '#16a34a';
+  if (taux < 100) return '#ca8a04';
+  return '#dc2626';
 }
 
 export function co2Label(taux: number): string {
