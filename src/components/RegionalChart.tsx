@@ -31,9 +31,10 @@ export function RegionalChart({ data, selectedRegion }: Props) {
   const regions = useMemo(() => {
     if (data.length === 0) return [];
 
-    // Get latest record per region
+    // Get latest record per region that has actual data
     const latestByRegion = new Map<string, RegionalRecord>();
     for (const r of data) {
+      if (r.consommation == null && r.nucleaire == null) continue;
       const existing = latestByRegion.get(r.libelle_region);
       if (
         !existing ||

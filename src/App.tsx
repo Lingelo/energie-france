@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useData } from './hooks/useData';
 import { MapView } from './components/MapView';
-import { MapFilters } from './components/MapFilters';
 import { StatsOverlay } from './components/StatsOverlay';
 import { MixEvolution } from './components/MixEvolution';
 import { Co2Heatmap } from './components/Co2Heatmap';
@@ -17,17 +16,17 @@ import { co2Color } from './utils/colors';
 import type { PlantFiliere } from './types';
 
 const REGION_CENTERS: Record<string, [number, number]> = {
-  'Ile-de-France': [48.85, 2.35],
-  'Auvergne-Rhone-Alpes': [45.75, 4.85],
+  'Île-de-France': [48.85, 2.35],
+  'Auvergne-Rhône-Alpes': [45.75, 4.85],
   'Nouvelle-Aquitaine': [45.5, 0.5],
   'Occitanie': [43.6, 2.0],
   'Hauts-de-France': [49.9, 2.8],
   'Grand Est': [48.6, 6.2],
-  "Provence-Alpes-Cote d'Azur": [43.9, 6.0],
+  "Provence-Alpes-Côte d'Azur": [43.9, 6.0],
   'Pays de la Loire': [47.5, -1.0],
   'Bretagne': [48.2, -3.0],
   'Normandie': [49.1, -0.3],
-  'Bourgogne-Franche-Comte': [47.0, 5.5],
+  'Bourgogne-Franche-Comté': [47.0, 5.5],
   'Centre-Val de Loire': [47.5, 1.7],
 };
 
@@ -171,11 +170,12 @@ function App() {
       <div className="flex-1 flex relative">
         {/* Map */}
         <div className="flex-1 relative">
-          <MapView plants={plants} activeFilters={activeFilters} showHeatmap={showHeatmap} selectedRegion={selectedRegion} />
-          <MapFilters
-            active={activeFilters}
-            onToggle={handleToggle}
+          <MapView
+            plants={plants}
+            activeFilters={activeFilters}
             showHeatmap={showHeatmap}
+            selectedRegion={selectedRegion}
+            onToggleFiliere={handleToggle}
             onToggleHeatmap={handleToggleHeatmap}
           />
         </div>

@@ -9,17 +9,17 @@ import type { PowerPlant, PlantFiliere } from '../types';
 import { PLANT_COLORS, PLANT_FILIERES } from '../utils/colors';
 
 const REGION_CENTERS: Record<string, [number, number]> = {
-  'Ile-de-France': [48.85, 2.35],
-  'Auvergne-Rhone-Alpes': [45.75, 4.85],
+  'Île-de-France': [48.85, 2.35],
+  'Auvergne-Rhône-Alpes': [45.75, 4.85],
   'Nouvelle-Aquitaine': [45.5, 0.5],
   'Occitanie': [43.6, 2.0],
   'Hauts-de-France': [49.9, 2.8],
   'Grand Est': [48.6, 6.2],
-  "Provence-Alpes-Cote d'Azur": [43.9, 6.0],
+  "Provence-Alpes-Côte d'Azur": [43.9, 6.0],
   'Pays de la Loire': [47.5, -1.0],
   'Bretagne': [48.2, -3.0],
   'Normandie': [49.1, -0.3],
-  'Bourgogne-Franche-Comte': [47.0, 5.5],
+  'Bourgogne-Franche-Comté': [47.0, 5.5],
   'Centre-Val de Loire': [47.5, 1.7],
 };
 
@@ -28,6 +28,8 @@ interface Props {
   activeFilters: Set<PlantFiliere>;
   showHeatmap: boolean;
   selectedRegion: string | null;
+  onToggleFiliere: (filiere: PlantFiliere) => void;
+  onToggleHeatmap: () => void;
 }
 
 const MIN_CAPACITY_MW = 1;
@@ -209,26 +211,62 @@ function FlyToRegion({ region }: { region: string | null }) {
   return null;
 }
 
-// Legend overlay for the map
-function MapLegend() {
+// Interactive legend overlay for the map
+function MapLegend({
+  activeFilters,
+  onToggle,
+  showHeatmap,
+  onToggleHeatmap,
+}: {
+  activeFilters: Set<PlantFiliere>;
+  onToggle: (filiere: PlantFiliere) => void;
+  showHeatmap: boolean;
+  onToggleHeatmap: () => void;
+}) {
   return (
     <div className="absolute bottom-4 left-4 z-[1000] glass rounded-xl px-3 py-2.5">
       <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
-        {PLANT_FILIERES.map((f) => (
-          <div key={f} className="flex items-center gap-1.5">
-            <span
-              className="w-2.5 h-2.5 rounded-full shrink-0"
-              style={{ backgroundColor: PLANT_COLORS[f] }}
-            />
-            <span className="text-[#475569]">{f}</span>
-          </div>
-        ))}
+        {PLANT_FILIERES.map((f) => {
+          const isActive = activeFilters.has(f);
+          return (
+            <button
+              key={f}
+              onClick={() => onToggle(f)}
+              className="flex items-center gap-1.5 transition-opacity"
+              style={{ opacity: isActive ? 1 : 0.35 }}
+            >
+              <span
+                className="w-2.5 h-2.5 rounded-full shrink-0 transition-all"
+                style={{
+                  backgroundColor: isActive ? PLANT_COLORS[f] : '#cbd5e1',
+                  boxShadow: isActive ? `0 0 0 1.5px white, 0 0 0 3px ${PLANT_COLORS[f]}40` : 'none',
+                }}
+              />
+              <span className="text-[#475569]">{f}</span>
+            </button>
+          );
+        })}
+        {/* Heatmap toggle */}
+        <button
+          onClick={onToggleHeatmap}
+          className="flex items-center gap-1.5 transition-opacity col-span-2 mt-1 pt-1.5 border-t border-[#e2e8f0]"
+          style={{ opacity: showHeatmap ? 1 : 0.35 }}
+        >
+          <span
+            className="w-2.5 h-2.5 rounded-full shrink-0 transition-all"
+            style={{
+              backgroundColor: showHeatmap ? '#dc2626' : '#cbd5e1',
+              boxShadow: showHeatmap ? '0 0 0 1.5px white, 0 0 0 3px #dc262640' : 'none',
+            }}
+          />
+          <span className="text-[#475569]">Heatmap CO₂</span>
+        </button>
       </div>
     </div>
   );
 }
 
-export function MapView({ plants, activeFilters, showHeatmap, selectedRegion }: Props) {
+export function MapView({ plants, activeFilters, showHeatmap, selectedRegion, onToggleFiliere, onToggleHeatmap }: Props) {
   const filtered = useMemo(() => {
     return plants.filter((p) => {
       if (!activeFilters.has(p.filiere)) return false;
@@ -273,7 +311,12 @@ export function MapView({ plants, activeFilters, showHeatmap, selectedRegion }: 
           </>
         )}
       </MapContainer>
-      <MapLegend />
+      <MapLegend
+        activeFilters={activeFilters}
+        onToggle={onToggleFiliere}
+        showHeatmap={showHeatmap}
+        onToggleHeatmap={onToggleHeatmap}
+      />
     </div>
   );
 }
