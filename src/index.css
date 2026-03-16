@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-border: #334155;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-nucleaire: #3b82f6;
+  --color-eolien: #06b6d4;
+  --color-solaire: #eab308;
+  --color-hydraulique: #0ea5e9;
+  --color-gaz: #f97316;
+  --color-charbon: #ef4444;
+  --color-fioul: #dc2626;
+  --color-bioenergies: #22c55e;
+  --color-pompage: #a855f7;
+  --color-accent: #8b5cf6;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Recharts dark overrides */
+.recharts-cartesian-grid line {
+  stroke: #334155;
+}
+.recharts-text {
+  fill: #94a3b8;
+  font-size: 12px;
+}
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  border-radius: 8px !important;
+}
+.recharts-tooltip-item {
+  color: #f1f5f9 !important;
+}
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.animate-pulse-live {
+  animation: pulse-live 2s ease-in-out infinite;
+}
+
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
