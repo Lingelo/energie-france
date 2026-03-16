@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { DataState, EnergyRecord, RegionalRecord } from '../types';
+import type { DataState, EnergyRecord, RegionalRecord, PowerPlant } from '../types';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -8,6 +8,7 @@ export function useData(): DataState {
     realtime: [],
     yearly: [],
     regional: [],
+    plants: [],
     loading: true,
     error: null,
   });
@@ -15,10 +16,11 @@ export function useData(): DataState {
   useEffect(() => {
     async function load() {
       try {
-        const [realtimeRes, yearlyRes, regionalRes] = await Promise.all([
+        const [realtimeRes, yearlyRes, regionalRes, plantsRes] = await Promise.all([
           fetch(`${BASE}data/realtime.json`),
           fetch(`${BASE}data/yearly.json`),
           fetch(`${BASE}data/regional.json`),
+          fetch(`${BASE}data/plants.json`),
         ]);
 
         if (!realtimeRes.ok || !yearlyRes.ok || !regionalRes.ok) {
@@ -31,7 +33,13 @@ export function useData(): DataState {
           regionalRes.json() as Promise<RegionalRecord[]>,
         ]);
 
-        setState({ realtime, yearly, regional, loading: false, error: null });
+        // Plants data is optional — don't fail if missing
+        let plants: PowerPlant[] = [];
+        if (plantsRes.ok) {
+          plants = await plantsRes.json() as PowerPlant[];
+        }
+
+        setState({ realtime, yearly, regional, plants, loading: false, error: null });
       } catch (err) {
         setState(prev => ({
           ...prev,

@@ -39,10 +39,30 @@ export interface RegionalRecord {
   pompage: number | null;
 }
 
+export type PlantFiliere =
+  | 'Nucleaire'
+  | 'Solaire'
+  | 'Eolien'
+  | 'Hydraulique'
+  | 'Gaz'
+  | 'Charbon'
+  | 'Bioenergies'
+  | 'Stockage';
+
+export interface PowerPlant {
+  lat: number;
+  lng: number;
+  name: string | null;
+  filiere: PlantFiliere;
+  capacity: number | null;
+  operator: string | null;
+}
+
 export interface DataState {
   realtime: EnergyRecord[];
   yearly: EnergyRecord[];
   regional: RegionalRecord[];
+  plants: PowerPlant[];
   loading: boolean;
   error: string | null;
 }

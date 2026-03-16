@@ -1,4 +1,4 @@
-import type { FilièreKey } from '../types';
+import type { FilièreKey, PlantFiliere } from '../types';
 
 export const FILIERE_COLORS: Record<FilièreKey, string> = {
   nucleaire: '#3b82f6',
@@ -34,6 +34,28 @@ export const FILIERE_KEYS: FilièreKey[] = [
   'fioul',
   'charbon',
   'pompage',
+];
+
+export const PLANT_COLORS: Record<PlantFiliere, string> = {
+  Nucleaire: '#3b82f6',
+  Eolien: '#06b6d4',
+  Solaire: '#eab308',
+  Hydraulique: '#0ea5e9',
+  Gaz: '#f97316',
+  Charbon: '#ef4444',
+  Bioenergies: '#22c55e',
+  Stockage: '#a855f7',
+};
+
+export const PLANT_FILIERES: PlantFiliere[] = [
+  'Nucleaire',
+  'Eolien',
+  'Solaire',
+  'Hydraulique',
+  'Gaz',
+  'Charbon',
+  'Bioenergies',
+  'Stockage',
 ];
 
 export function co2Color(taux: number): string {
