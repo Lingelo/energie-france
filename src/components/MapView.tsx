@@ -8,10 +8,26 @@ import 'leaflet.heat';
 import type { PowerPlant, PlantFiliere } from '../types';
 import { PLANT_COLORS, PLANT_FILIERES } from '../utils/colors';
 
+const REGION_CENTERS: Record<string, [number, number]> = {
+  'Ile-de-France': [48.85, 2.35],
+  'Auvergne-Rhone-Alpes': [45.75, 4.85],
+  'Nouvelle-Aquitaine': [45.5, 0.5],
+  'Occitanie': [43.6, 2.0],
+  'Hauts-de-France': [49.9, 2.8],
+  'Grand Est': [48.6, 6.2],
+  "Provence-Alpes-Cote d'Azur": [43.9, 6.0],
+  'Pays de la Loire': [47.5, -1.0],
+  'Bretagne': [48.2, -3.0],
+  'Normandie': [49.1, -0.3],
+  'Bourgogne-Franche-Comte': [47.0, 5.5],
+  'Centre-Val de Loire': [47.5, 1.7],
+};
+
 interface Props {
   plants: PowerPlant[];
   activeFilters: Set<PlantFiliere>;
   showHeatmap: boolean;
+  selectedRegion: string | null;
 }
 
 const MIN_CAPACITY_MW = 1;
@@ -173,6 +189,26 @@ function HeatmapLayer({ plants }: { plants: PowerPlant[] }) {
   return null;
 }
 
+// Fly to selected region
+function FlyToRegion({ region }: { region: string | null }) {
+  const map = useMap();
+  const prevRegion = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (region && region !== prevRegion.current) {
+      const center = REGION_CENTERS[region];
+      if (center) {
+        map.flyTo(center, 8, { duration: 1.2 });
+      }
+    } else if (!region && prevRegion.current) {
+      map.flyTo([46.8, 2.5], 6, { duration: 1.2 });
+    }
+    prevRegion.current = region;
+  }, [map, region]);
+
+  return null;
+}
+
 // Legend overlay for the map
 function MapLegend() {
   return (
@@ -192,7 +228,7 @@ function MapLegend() {
   );
 }
 
-export function MapView({ plants, activeFilters, showHeatmap }: Props) {
+export function MapView({ plants, activeFilters, showHeatmap, selectedRegion }: Props) {
   const filtered = useMemo(() => {
     return plants.filter((p) => {
       if (!activeFilters.has(p.filiere)) return false;
@@ -226,6 +262,7 @@ export function MapView({ plants, activeFilters, showHeatmap }: Props) {
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
           subdomains="abcd"
         />
+        <FlyToRegion region={selectedRegion} />
         {showHeatmap && <HeatmapLayer plants={filtered} />}
         {!showHeatmap && (
           <>

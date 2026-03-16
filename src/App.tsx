@@ -12,10 +12,24 @@ import { HeroStats } from './components/HeroStats';
 import { AboutModal } from './components/AboutModal';
 import { Footer } from './components/Footer';
 import { TabPanel } from './components/TabPanel';
-import { PLANT_FILIERES } from './utils/colors';
 import { formatCO2 } from './utils/format';
 import { co2Color } from './utils/colors';
 import type { PlantFiliere } from './types';
+
+const REGION_CENTERS: Record<string, [number, number]> = {
+  'Ile-de-France': [48.85, 2.35],
+  'Auvergne-Rhone-Alpes': [45.75, 4.85],
+  'Nouvelle-Aquitaine': [45.5, 0.5],
+  'Occitanie': [43.6, 2.0],
+  'Hauts-de-France': [49.9, 2.8],
+  'Grand Est': [48.6, 6.2],
+  "Provence-Alpes-Cote d'Azur": [43.9, 6.0],
+  'Pays de la Loire': [47.5, -1.0],
+  'Bretagne': [48.2, -3.0],
+  'Normandie': [49.1, -0.3],
+  'Bourgogne-Franche-Comte': [47.0, 5.5],
+  'Centre-Val de Loire': [47.5, 1.7],
+};
 
 function App() {
   const { realtime, yearly, regional, plants, loading, error } = useData();
@@ -23,8 +37,9 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState<Set<PlantFiliere>>(
-    () => new Set(PLANT_FILIERES)
+    () => new Set(['Nucleaire', 'Hydraulique'] as PlantFiliere[])
   );
 
   const handleToggleHeatmap = useCallback(() => {
@@ -40,6 +55,10 @@ function App() {
     });
   }, []);
 
+  const handleRegionChange = useCallback((region: string | null) => {
+    setSelectedRegion(region);
+  }, []);
+
   const latest = useMemo(() => {
     if (realtime.length === 0) return null;
     const sorted = [...realtime].sort(
@@ -47,17 +66,6 @@ function App() {
     );
     return sorted.find((r) => r.consommation != null) ?? sorted[0];
   }, [realtime]);
-
-  const heatmapData = useMemo(() => {
-    const all = [...yearly, ...realtime];
-    const map = new Map<string, (typeof all)[0]>();
-    for (const r of all) {
-      map.set(r.date_heure, r);
-    }
-    return [...map.values()].sort(
-      (a, b) => new Date(a.date_heure).getTime() - new Date(b.date_heure).getTime()
-    );
-  }, [realtime, yearly]);
 
   const visiblePlants = useMemo(() => {
     return plants.filter((p) => activeFilters.has(p.filiere)).length;
@@ -93,12 +101,6 @@ function App() {
         <>
           <HeroStats latest={latest} />
           <MixDonut latest={latest} />
-          <MapFilters
-            active={activeFilters}
-            onToggle={handleToggle}
-            showHeatmap={showHeatmap}
-            onToggleHeatmap={handleToggleHeatmap}
-          />
         </>
       ),
     },
@@ -110,14 +112,14 @@ function App() {
     {
       id: 'co2',
       label: 'CO2',
-      content: <Co2Heatmap data={heatmapData} />,
+      content: <Co2Heatmap data={realtime} />,
     },
     {
       id: 'regions',
       label: 'Regions',
       content: (
         <>
-          <RegionalChart data={regional} />
+          <RegionalChart data={regional} selectedRegion={selectedRegion} />
           <YearlyTrends data={yearly} />
         </>
       ),
@@ -140,8 +142,20 @@ function App() {
             </span>
           </div>
 
-          {/* Center: CO2 rate */}
-          <StatsOverlay latest={latest} />
+          {/* Center: CO2 rate + region selector */}
+          <div className="flex items-center gap-3">
+            <StatsOverlay latest={latest} />
+            <select
+              value={selectedRegion ?? ''}
+              onChange={(e) => handleRegionChange(e.target.value || null)}
+              className="hidden sm:block text-xs bg-white/80 border border-[#e2e8f0] rounded-lg px-2 py-1.5 text-[#475569] focus:outline-none focus:border-[#0072CE] cursor-pointer"
+            >
+              <option value="">Toutes les regions</option>
+              {Object.keys(REGION_CENTERS).map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
 
           {/* Right: sidebar toggle (desktop) */}
           <button
@@ -157,7 +171,13 @@ function App() {
       <div className="flex-1 flex relative">
         {/* Map */}
         <div className="flex-1 relative">
-          <MapView plants={plants} activeFilters={activeFilters} showHeatmap={showHeatmap} />
+          <MapView plants={plants} activeFilters={activeFilters} showHeatmap={showHeatmap} selectedRegion={selectedRegion} />
+          <MapFilters
+            active={activeFilters}
+            onToggle={handleToggle}
+            showHeatmap={showHeatmap}
+            onToggleHeatmap={handleToggleHeatmap}
+          />
         </div>
 
         {/* -- Desktop sidebar -- */}

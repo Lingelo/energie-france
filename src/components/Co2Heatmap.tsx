@@ -48,8 +48,8 @@ export function Co2Heatmap({ data }: Props) {
     dayDatePairs.sort((a, b) => a[1].getTime() - b[1].getTime());
     const sortedDays = dayDatePairs.map(([k]) => k);
 
-    // Take last 30 days
-    const recentDays = sortedDays.slice(-30);
+    // Take last 7 days (realtime data has 15-min resolution)
+    const recentDays = sortedDays.slice(-7);
 
     const grid: CellData[] = [];
     for (const day of recentDays) {

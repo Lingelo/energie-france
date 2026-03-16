@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { PlantFiliere } from '../types';
 import { PLANT_COLORS, PLANT_FILIERES } from '../utils/colors';
 
@@ -9,54 +10,64 @@ interface Props {
 }
 
 export function MapFilters({ active, onToggle, showHeatmap, onToggleHeatmap }: Props) {
+  const [hoveredFiliere, setHoveredFiliere] = useState<string | null>(null);
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-[#64748b]">Filtres carte</h4>
+    <div className="absolute bottom-14 right-4 z-[1000] glass rounded-xl px-2 py-1.5 flex items-center gap-1.5">
+      {PLANT_FILIERES.map((f) => {
+        const isActive = active.has(f);
+        const color = PLANT_COLORS[f];
+        return (
+          <div key={f} className="relative">
+            <button
+              onClick={() => onToggle(f)}
+              onMouseEnter={() => setHoveredFiliere(f)}
+              onMouseLeave={() => setHoveredFiliere(null)}
+              className="w-5 h-5 rounded-full transition-all flex items-center justify-center"
+              style={{
+                background: isActive ? color : '#cbd5e1',
+                opacity: isActive ? 1 : 0.4,
+                boxShadow: isActive ? `0 0 0 2px white, 0 0 0 3.5px ${color}` : 'none',
+              }}
+              aria-label={f}
+            />
+            {hoveredFiliere === f && (
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-0.5 rounded text-[10px] font-medium text-white bg-[#1e293b] whitespace-nowrap pointer-events-none">
+                {f}
+              </span>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Separator */}
+      <div className="w-px h-4 bg-[#e2e8f0] mx-0.5" />
+
+      {/* Heatmap toggle */}
+      <div className="relative">
         <button
           onClick={onToggleHeatmap}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border"
+          onMouseEnter={() => setHoveredFiliere('heatmap')}
+          onMouseLeave={() => setHoveredFiliere(null)}
+          className="w-5 h-5 rounded-full flex items-center justify-center transition-all"
           style={{
-            background: showHeatmap ? '#dc26260a' : 'transparent',
-            borderColor: showHeatmap ? '#dc2626' : '#e2e8f0',
-            color: showHeatmap ? '#dc2626' : '#64748b',
+            background: showHeatmap ? '#dc2626' : '#cbd5e1',
+            opacity: showHeatmap ? 1 : 0.4,
+            boxShadow: showHeatmap ? '0 0 0 2px white, 0 0 0 3.5px #dc2626' : 'none',
           }}
+          aria-label="Heatmap CO2"
         >
-          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="white">
             <circle cx="12" cy="12" r="10" opacity="0.3" />
             <circle cx="12" cy="12" r="6" opacity="0.6" />
             <circle cx="12" cy="12" r="3" />
           </svg>
-          Heatmap
         </button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
-        {PLANT_FILIERES.map((f) => {
-          const isActive = active.has(f);
-          const color = PLANT_COLORS[f];
-          return (
-            <button
-              key={f}
-              onClick={() => onToggle(f)}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all border"
-              style={{
-                background: isActive ? `${color}0a` : 'transparent',
-                borderColor: isActive ? `${color}40` : '#e2e8f0',
-                color: isActive ? '#1e293b' : '#94a3b8',
-                opacity: isActive ? 1 : 0.7,
-              }}
-            >
-              <span
-                className="w-3 h-3 rounded-full shrink-0 transition-all"
-                style={{
-                  background: isActive ? color : '#cbd5e1',
-                }}
-              />
-              {f}
-            </button>
-          );
-        })}
+        {hoveredFiliere === 'heatmap' && (
+          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-0.5 rounded text-[10px] font-medium text-white bg-[#1e293b] whitespace-nowrap pointer-events-none">
+            Heatmap CO2
+          </span>
+        )}
       </div>
     </div>
   );

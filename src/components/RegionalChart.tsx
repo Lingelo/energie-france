@@ -13,6 +13,7 @@ import { FILIERE_COLORS } from '../utils/colors';
 
 interface Props {
   data: RegionalRecord[];
+  selectedRegion?: string | null;
 }
 
 interface RegionSummary {
@@ -26,7 +27,7 @@ interface RegionSummary {
   bioenergies: number;
 }
 
-export function RegionalChart({ data }: Props) {
+export function RegionalChart({ data, selectedRegion }: Props) {
   const regions = useMemo(() => {
     if (data.length === 0) return [];
 
@@ -61,6 +62,14 @@ export function RegionalChart({ data }: Props) {
     return summaries;
   }, [data]);
 
+  const chartData = useMemo(() => {
+    if (!selectedRegion) return regions;
+    return regions.map((r) => ({
+      ...r,
+      opacity: r.region.startsWith(selectedRegion.slice(0, 18)) ? 1 : 0.3,
+    }));
+  }, [regions, selectedRegion]);
+
   if (regions.length === 0) return null;
 
   return (
@@ -89,9 +98,9 @@ export function RegionalChart({ data }: Props) {
         ))}
       </div>
 
-      <div style={{ height: Math.max(400, regions.length * 35) }}>
+      <div style={{ width: '100%', height: 500 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={regions} layout="vertical" margin={{ left: 10 }}>
+          <BarChart data={chartData} layout="vertical" margin={{ left: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
             <XAxis
               type="number"

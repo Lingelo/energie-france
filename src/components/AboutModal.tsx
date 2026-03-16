@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom';
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -6,9 +8,9 @@ interface Props {
 export function AboutModal({ open, onClose }: Props) {
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
@@ -67,6 +69,7 @@ export function AboutModal({ open, onClose }: Props) {
           Fermer
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
